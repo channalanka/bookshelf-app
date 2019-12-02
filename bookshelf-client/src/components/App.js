@@ -2,14 +2,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { BrowserRouter, Route, Link,Redirect } from "react-router-dom"
 import Container from './Container';
+import {logOut} from "../actions";
+import {removeAuthStateFromLocalStorage} from "../getAuthState";
 import Login from "./Login";
 import SignUp from "./SignUp";
 
-
-
 const App = (props) => {
-
-
     return (
         <div>
 
@@ -18,9 +16,9 @@ const App = (props) => {
                     {props.auth.isSigendIn ? (
                         <div className="right menu">
                             <div className="item">{props.auth.userName}</div>
-                            <Link className="item" to="/login">
+                            <button className="item" onClick={() =>{ props.logOut(); removeAuthStateFromLocalStorage();}}>
                                 SignOut
-                                </Link>
+                                </button>
                         </div>
                     ) :
                         (
@@ -34,7 +32,7 @@ const App = (props) => {
                 <h2 className="ui center aligned icon header">
                     <i className="circular book icon"></i>
                     Bookshelf App
-</h2>
+                </h2>
 
                 <div>
                     <Route path="/" exact component={props.auth.isSigendIn ? Container : Login} />
@@ -51,7 +49,7 @@ const App = (props) => {
     </>); */
 }
 
-const PrivateRoute = ({ component: Component, isAuthenticated: isAuthenticated, ...rest }) => (
+const PrivateRoute = ({ component: Component, isAuthenticated, ...rest }) => (
     <Route {...rest} render={(props) => (
       isAuthenticated === true
         ? <Component {...props} />
@@ -64,4 +62,6 @@ const mapStateToProps = ({ auth }) => {
 }
 
 
-export default connect(mapStateToProps)(App);
+export default connect(mapStateToProps, {
+    logOut
+})(App);

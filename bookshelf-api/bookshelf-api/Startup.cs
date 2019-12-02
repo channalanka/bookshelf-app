@@ -35,10 +35,11 @@ namespace bookshelf_api
                     builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
                 });
             });
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
             services.AddControllers(options => options.Filters.Add(new HttpResponseExceptionFilter()));
             services.AddScoped<IAuthSecurity, AuthSecurity>();
             services.AddScoped<IUser, UserRepo>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<BookshelfContext>();
             services.AddScoped<IBookShelf, BookShelfRepo>();
         }
@@ -71,13 +72,13 @@ namespace bookshelf_api
         /// token end point implementation
         /// </summary>
 
-        private Func<HttpContext, Func<Task>, Task> authMiddleware = async (context, next) => {
+        private Func<HttpContext, Func<Task>, Task> authMiddleware = async (context, next) =>
+        {
             Console.WriteLine("REQUEST PATH -  " + context.Request.Path);
-            Console.WriteLine(context.Request);
-
 
             if (context.Request.Path == "/token")
             {
+
                 JObject loginReq = null;
                 // userservice.GetUserFromUserNameAndPassword(context.Request.Body.ReadAsync())
                 using (var reader = new StreamReader(context.Request.Body))
@@ -90,35 +91,40 @@ namespace bookshelf_api
                 }
                 var userName = loginReq.GetValue("username", StringComparison.OrdinalIgnoreCase)?.Value<string>();
                 var password = loginReq.GetValue("password", StringComparison.OrdinalIgnoreCase)?.Value<string>();
-
+                
                 if (loginReq == null || string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
                 {
-                    context.Response.StatusCode = 401;
+                    context.Response.StatusCode = 400;
                     await context.Response.WriteAsync("Invalid username or Password");
+                    return;
                 }
-                else
+
+                
+                IUser userRepo = context.RequestServices.GetService<IUser>();
+                var user = await userRepo.GetUserByUserName(userName, password);
+                if (user == null)
                 {
-
-                    IUser userRepo = context.RequestServices.GetService<IUser>();
-                    var user = await userRepo.GetUserByUserName(userName, password);
-                    if (user == null)
-                    {
-                        context.Response.StatusCode = 401;
-                        await context.Response.WriteAsync("Invalid username or Password");
-                    }
-
-                    IAuthSecurity securityService = context.RequestServices.GetService<IAuthSecurity>();
-                    var tokenData = new Token(new Payload
-                    {
-                        UserId = user.UserId,
-                        UserName = user.UserName,
-                        Name = user.Name
-                    }, DateTime.Now.AddDays(1));
-                    var token = securityService.GenerateToken(tokenData);
-                    await context.Response.WriteAsync(token);
-
+                    context.Response.StatusCode = 400;
+                    await context.Response.WriteAsync("Invalid username or Password");
+                    return;
                 }
 
+                IAuthSecurity securityService = context.RequestServices.GetService<IAuthSecurity>();
+                var tokenData = new Token(new Payload
+                {
+                    UserId = user.UserId,
+                    UserName = user.UserName,
+                    Name = user.Name
+                }, DateTime.Now.AddDays(1));
+                var token = securityService.GenerateToken(tokenData);
+                if (string.IsNullOrEmpty(token))
+                {
+                    context.Response.StatusCode = 500;
+                    await context.Response.WriteAsync("Server Error");
+                    return;
+                }
+
+                await context.Response.WriteAsync(token);
                 return;
             }
 

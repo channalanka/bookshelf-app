@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import { defaultBooks, defaultAuth } from './default.state';
+import {getAuthStateFromLocalStorage} from "../getAuthState"
 
 
 const bookReducer = (state = defaultBooks, action) => {
@@ -76,7 +77,8 @@ const bookReducer = (state = defaultBooks, action) => {
 }
 
 
-const authReducer = (state = defaultAuth, action) => {
+const intialState = getAuthStateFromLocalStorage();
+const authReducer = (state = intialState, action) => {
     switch (action.type) {
 
         case "LOGIN_SUCCESS":

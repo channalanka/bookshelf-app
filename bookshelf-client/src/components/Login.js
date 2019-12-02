@@ -39,8 +39,7 @@ class Login extends React.Component {
     }
 
     render() {
-        console.log(this.props);
-        const { username, password, submitted } = this.state;
+        const { username, password } = this.state;
         return (
         <div className="ui placeholder segment">
             <div className="ui icon header">Sign In</div>

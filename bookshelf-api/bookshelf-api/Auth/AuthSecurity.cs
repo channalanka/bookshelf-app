@@ -13,18 +13,27 @@ namespace bookshelf_api.Auth
 
         public string GenerateToken(Token token)
         {
-            var data = JsonConvert.SerializeObject(token);
-            var payloadBytes = Encoding.UTF8.GetBytes(data);
-            var keyByte = Convert.FromBase64String(sharedKey);
-            string signedString = "";
-            using (var hmac = new HMACSHA256(keyByte))
+            try
             {
-                var signedByte = hmac.ComputeHash(payloadBytes);
-                signedString = Convert.ToBase64String(signedByte);
+                
+                var data = JsonConvert.SerializeObject(token);
+                var payloadBytes = Encoding.UTF8.GetBytes(data);
+                
+                var keyByte = Convert.FromBase64String(sharedKey);
+                string signedString = "";
+                using (var hmac = new HMACSHA256(keyByte))
+                {
+                    var signedByte = hmac.ComputeHash(payloadBytes);
+                    signedString = Convert.ToBase64String(signedByte);
+                }
+                
+                string payloadString = System.Convert.ToBase64String(payloadBytes);
+                return string.Format("{0}.{1}", signedString, payloadString);
             }
-
-            string payloadString = System.Convert.ToBase64String(payloadBytes);
-            return string.Format("{0}.{1}", signedString, payloadString);
+            catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
         }
 
         public Token VerifyToken(string token)
