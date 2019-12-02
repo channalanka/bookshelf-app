@@ -12,5 +12,5 @@ export const defaultAuth = {
     userId:'',
     isSigendIn: false,
     signedUpSucess: false,
-    autherror:''
+    msg:''
 }

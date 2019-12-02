@@ -40,16 +40,17 @@ class Login extends React.Component {
 
     render() {
         const { username, password } = this.state;
+        const {auth}  = this.props
         return (
         <div className="ui placeholder segment">
             <div className="ui icon header">Sign In</div>
             <br/>
-            { this.props.auth.autherror && <div className="ui negative message">
+            {auth.msg && <div className="ui negative message">
                 <i className="close icon"></i>
                 <div className="header">
                         Error
                 </div>
-                <p>{this.props.auth.autherror}</p>
+                <p>{auth.msg}</p>
             </div>
             }
             <form className="ui form" onSubmit={(e) => this.loginSubmit(e)} >

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using bookshelf_api.Common;
 using bookshelf_api.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace bookshelf_api.Repository
 {
@@ -29,7 +30,7 @@ namespace bookshelf_api.Repository
         /// <returns></returns>
         public async Task<bool> Loan(Book book)
         {
-            var dbBook = this.db.Books.FirstOrDefault(x => x.ISBN == book.ISBN);
+            var dbBook = await this.db.Books.FirstOrDefaultAsync(x => x.ISBN == book.ISBN).ConfigureAwait(false);
             //check wheather book is available and is not loaned to anyone
             if (dbBook == null)
                 throw new ApiValidationException("Book is not exsist");
@@ -37,7 +38,7 @@ namespace bookshelf_api.Repository
                 throw new ApiValidationException("Book is already loaned ");
 
             dbBook.LoanedToId = book.LoanedToId;
-            return await this.db.SaveChangesAsync() > 0;
+            return await this.db.SaveChangesAsync().ConfigureAwait(false) > 0;
         }
 
         /// <summary>
@@ -47,7 +48,7 @@ namespace bookshelf_api.Repository
         /// <returns></returns>
         public async Task<bool> Return(Book book)
         {
-            var dbBook = this.db.Books.FirstOrDefault(x => x.ISBN == book.ISBN);
+            var dbBook = await this.db.Books.FirstOrDefaultAsync(x => x.ISBN == book.ISBN).ConfigureAwait(false);
 
             Console.Write("--------LIBRARY RETURN "+ dbBook.LoanedTo);
             Console.Write(dbBook.LoanedToId);
@@ -59,7 +60,7 @@ namespace bookshelf_api.Repository
 
             dbBook.LoanedToId = (int?)null;
             dbBook.LoanedTo = null;
-            return await this.db.SaveChangesAsync() > 0;
+            return await this.db.SaveChangesAsync().ConfigureAwait(false) > 0;
         }
     }
 }

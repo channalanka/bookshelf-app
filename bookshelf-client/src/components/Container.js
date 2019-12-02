@@ -7,6 +7,8 @@ import SelectedBook from './SelectBook';
 
 class Container extends React.Component {
     render() {
+        const {bookshelf} = this.props;
+
         return (
             <div className="ui placeholder segment">
                 <div className="ui icon header">Books Return/Loan</div>
@@ -19,12 +21,22 @@ class Container extends React.Component {
                             <BookList />
                         </div>
                         <div className="column eight wide middle aligned ">
-                            {this.props.bookshelf.error && <div className="ui negative message">
+                            { bookshelf.selectedBook 
+                            && bookshelf.selectedBook.loanedToId 
+                            && bookshelf.selectedBook.loanedToId !== this.props.auth.userId  
+                            && <div className="ui warning message">
+                                <i className="close icon"></i>
+                                <div className="header">
+                                  Warning
+                                </div>
+                                This book has been loaned by some other user
+                                </div> }
+                            {bookshelf.error && <div className="ui negative message">
                                 <i className="close icon"></i>
                                 <div className="header">
                                     Error
                                 </div>
-                                <p>{this.props.bookshelf.error}</p>
+                                <p>{bookshelf.error}</p>
                             </div>
                             }
                             <SelectedBook />
@@ -32,9 +44,6 @@ class Container extends React.Component {
                     </div>
                 </div>
             </div>
-
-
-
 
         );
     }

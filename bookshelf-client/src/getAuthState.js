@@ -18,7 +18,6 @@ export const setAuthStateFromLocalStorage = (state)=>{
     try{
         
          const statestr = JSON.stringify(state.auth);
-         console.log(statestr);
          localStorage.setItem("authState", statestr);
     
 

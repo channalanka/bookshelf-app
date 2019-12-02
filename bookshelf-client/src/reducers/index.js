@@ -4,7 +4,7 @@ import {getAuthStateFromLocalStorage} from "../getAuthState"
 
 
 const bookReducer = (state = defaultBooks, action) => {
-    console.log(action);
+    
     switch (action.type) {
         case "BOOKS_FETCH_SUCCESS":
             return {
@@ -89,13 +89,13 @@ const authReducer = (state = intialState, action) => {
                 userName: action.payload.UserName,
                 userId: action.payload.UserId,
                 name: action.payload.Name,
-                autherror: '',
+                msg: '',
                 isSigendIn: true,
             };
         case "LOGIN_FAIL":
             return {
                 ...state,
-                autherror: action.payload,
+                msg: action.payload,
                 isSigendIn: false,
             };
 
@@ -106,15 +106,15 @@ const authReducer = (state = intialState, action) => {
             return {
                 ...state,
                 signedUpSucess: true,
-                autherror: '',
-                userName: action.payload
+                msg: action.payload.msg,
+                userName: action.payload.userName
             };
 
 
         case "SIGNUP_FAIL":
             return {
                 ...state,
-                autherror: action.payload,
+                msg: action.payload,
                 isSigendIn: false,
             };
         default:

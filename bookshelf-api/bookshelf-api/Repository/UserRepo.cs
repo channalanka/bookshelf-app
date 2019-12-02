@@ -21,19 +21,20 @@ namespace bookshelf_api.Repository
 
         public async Task<int> CreateUser(User user)
         {
-            if (this.db.Users.FirstOrDefault(x => x.UserName == user.UserName) != null)
+            var dbUser = await this.db.Users.FirstOrDefaultAsync(x => x.UserName == user.UserName).ConfigureAwait(false);
+            if (dbUser != null)
                 throw new ApiValidationException("User Already exsist with given username");
 
             user.Password = this.authSecurity.GenerateHash(user.Password);
-            await this.db.Users.AddAsync(user);
-            await this.db.SaveChangesAsync();
+            await this.db.Users.AddAsync(user).ConfigureAwait(false) ;
+            await this.db.SaveChangesAsync().ConfigureAwait(false);
             return user.UserId;
         }
 
         public async Task<User> GetUserByUserName(string username, string password)
         {
             password = this.authSecurity.GenerateHash(password);
-            return await this.db.Users.FirstOrDefaultAsync(x => x.UserName == username && x.Password == password);
+            return await this.db.Users.FirstOrDefaultAsync(x => x.UserName == username && x.Password == password).ConfigureAwait(false);
         }
 
     }

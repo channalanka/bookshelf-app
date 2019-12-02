@@ -26,7 +26,6 @@ class SignUp extends React.Component {
     }
 
     signUpSubmit(e) {
-        console.log(this.props);
         e.preventDefault();
 
         this.setState({ submitted: true });
@@ -40,22 +39,41 @@ class SignUp extends React.Component {
             }
         );
 
+        this.setState({ username: '', password:'', confirmPassword:'', name:'' });
     }
 
     render() {
         const { username, password, confirmPassword, name} = this.state;
+        const {auth} = this.props
         return (
             <div className="ui placeholder segment">
                  <div className="ui icon header">Register</div>
             <br/>
-            { this.props.auth.autherror && <div className="ui negative message">
-                <i className="close icon"></i>
-                <div className="header">
+            {auth.msg && <> {
+            auth.signedUpSucess ? (
+                <div className="ui positive message">
+                    <i className="close icon"></i>
+                    <div className="header">
+                        Sucess
+                    </div>
+                    <p>
+                        {auth.msg}
+                    </p>
+                </div> 
+                ) : 
+                ( 
+                <div className="ui negative message">
+                    <i className="close icon"></i>
+                    <div className="header">
                         Error
-                </div>
-                <p>{this.props.auth.autherror}</p>
-            </div>
-            }
+                    </div>
+                    <p>
+                        {auth.msg}
+                    </p>
+                </div>  
+                )}
+                </> }
+
                 <form className="ui form" onSubmit={(e) => this.signUpSubmit(e)} >
                 <div className="field">
                         <label>Name</label>
@@ -76,7 +94,7 @@ class SignUp extends React.Component {
                     <button className="ui button" >Register</button>
                 </form>
                 <br></br>
-                { this.props.auth.signedUpSucess && 
+                {auth.signedUpSucess && 
                 <Link className="ui primary basic button" to="/login"  >
                         Go Back To Login
                 </Link>
