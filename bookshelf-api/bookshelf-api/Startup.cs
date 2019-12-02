@@ -35,6 +35,7 @@ namespace bookshelf_api
                     builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
                 });
             });
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddControllers(options => options.Filters.Add(new HttpResponseExceptionFilter()));
             services.AddScoped<IAuthSecurity, AuthSecurity>();
             services.AddScoped<IUser, UserRepo>();
