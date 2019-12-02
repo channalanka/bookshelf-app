@@ -33,7 +33,7 @@ namespace bookshelf_api.Repository
             //check wheather book is available and is not loaned to anyone
             if (dbBook == null)
                 throw new ApiValidationException("Book is not exsist");
-            if (dbBook.LoanedTo != null)
+            if (dbBook.LoanedToId != null)
                 throw new ApiValidationException("Book is already loaned ");
 
             dbBook.LoanedToId = book.LoanedToId;
