@@ -27,6 +27,7 @@ const bookReducer = (state = defaultBooks, action) => {
         case "SELECT_BOOK":
             return {
                 ...state,
+                error: '',
                 selectedBook: action.payload,
             };
         case "BOOKS_LOAN_SUCCESS":
@@ -37,7 +38,7 @@ const bookReducer = (state = defaultBooks, action) => {
                     loanedToId: action.payload.loanedToId
                 },
                 loading: false,
-                books: updateBooks(state, action.payload)
+                books: updateBooks([...state.books], action.payload)
             };
         case "BOOKS_LOAN_BEGIN":
             return {
@@ -58,7 +59,7 @@ const bookReducer = (state = defaultBooks, action) => {
                     loanedToId: null
                 },
                 loading: false,
-                books: updateBooks(state, action.payload)
+                books: updateBooks([...state.books], action.payload)
             };
         case "BOOKS_RETURN_BEGIN":
             return {
@@ -121,11 +122,18 @@ const authReducer = (state = intialState, action) => {
     }
 }
 
-const updateBooks = (state, payload) => {
-    const newArr = [...state.books];
-    const index = newArr.findIndex(x => x.bookId === payload.bookId);
-    newArr[index].loanedToId = payload.loanedToId;
-    return newArr;
+const updateBooks = (books, payload) => {
+
+    return books.map((item) => {
+        if (item.bookId !== payload.bookId)
+          return item
+        
+        return {
+          ...item,
+          loanedToId: payload.loanedToId
+        }
+      })
+   
 }
 
 export default combineReducers({

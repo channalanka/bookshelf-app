@@ -1,4 +1,23 @@
 import bookShelfApi from "../api/bookselfapi";
+import {removeAuthStateFromLocalStorage} from "../getAuthState";
+
+
+const handleError= (response, dispatch, type)=>{
+    if(!response || !response.status){
+         dispatch({type: type, payload: "connection error"}); 
+         return;
+    }
+
+    if(response.status === 401){
+        removeAuthStateFromLocalStorage();
+        dispatch({type: "LOGOUT"});
+        return;
+    }
+    
+    dispatch({type: type, payload: response.data}); 
+    return;
+
+ }
 
 export const fetchBooks = ()=> async (dispatch, getState)=>{
     dispatch({type:"BOOKS_FETCH_BEGIN"});
@@ -17,9 +36,12 @@ export const fetchBooks = ()=> async (dispatch, getState)=>{
          dispatch({type:"BOOKS_FETCH_FAIL", payload: "Server error"});
      }
     }catch(ex){
-        dispatch({type:"BOOKS_FETCH_FAIL", payload: "api connection error"});
+        console.log(ex["response"])
+        handleError(ex["response"], dispatch, "BOOKS_FETCH_FAIL")
+       
     }
  }
+
 
 
 export const loanBook = (data)=> async (dispatch, getState)=>{
@@ -41,12 +63,13 @@ export const loanBook = (data)=> async (dispatch, getState)=>{
             type:"BOOKS_LOAN_SUCCESS", 
             payload: {loanedToId: getState().auth.userId, bookId:data.BookId }
         });
-        dispatch(fetchBooks());
+       // dispatch(fetchBooks());
      }else{
          dispatch({type:"BOOKS_LOAN_FAIL", payload: "Seever error"});
      }
     }catch(ex){
-        dispatch({type:"BOOKS_LOAN_FAIL", payload: ex.message});
+        console.log(ex["response"]);
+        handleError(ex["response"], dispatch, "BOOKS_LOAN_FAIL")
     }
  }
 
@@ -68,14 +91,14 @@ export const returnBook = (data)=> async (dispatch, getState)=>{
      if(response.status === 200 && response.data){
         dispatch({
             type:"BOOKS_RETURN_SUCCESS", 
-            payload: {bookId:data.BookId }
+            payload: {bookId:data.BookId, loanedToId: null }
         });
-        dispatch(fetchBooks());
+        //dispatch(fetchBooks());
      }else{
          dispatch({type:"BOOKS_RETURN_FAIL", payload: "Server error"});
      }
     }catch(ex){
-        dispatch({type:"BOOKS_RETURN_FAIL", payload: ex.message});
+        handleError(ex["response"], dispatch, "BOOKS_RETURN_FAIL");
     }
  }
 
@@ -106,8 +129,7 @@ export const login = (data, routrhistory)=> async (dispatch)=>{
                  dispatch({type:"LOGIN_FAIL", payload: "Invalid username or password"});
              }
         }catch(ex){
-            console.log(ex);
-            dispatch({type:"LOGIN_FAIL", payload: "Invalid username or password"});
+            handleError(ex["response"], dispatch, "LOGIN_FAIL");
         }
  }
 
@@ -135,6 +157,6 @@ export const signUpUser = (data)=> async (dispatch, getState)=>{
             }
         }catch(ex){
             console.log(ex);
-            dispatch({type:"SIGNUP_FAIL", payload: ex.message});
+            handleError(ex["response"], dispatch, "SIGNUP_FAIL");
         }
  }
