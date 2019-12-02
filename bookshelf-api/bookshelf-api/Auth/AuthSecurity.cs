@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace bookshelf_api.Auth
 {
     public class AuthSecurity : IAuthSecurity
     {
-        private const string sharedKey = "U3vGpjrsQ8EQvfSRQCNhfhVuukK3Uqqox1tDfi14ECE=";
-        
+        private  string sharedKey;
+        public AuthSecurity(IConfiguration config) {
+            this.sharedKey = config["Security:SymetricKey"];
+        }
 
 
         public string GenerateToken(Token token)
